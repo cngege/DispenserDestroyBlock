@@ -1,14 +1,14 @@
-#pragma once
+﻿#pragma once
 
 #define PLUGIN_VERSION_DEV     0
 #define PLUGIN_VERSION_BETA    1
 #define PLUGIN_VERSION_RELEASE 2
 
 // Plugin Information, used in dllmain.cpp for register plugin
-static_assert(false, "Please modify your plugin registration details and delete this line");
-#define PLUGIN_NAME                 "PluginName"
-#define PLUGIN_INTRODUCTION         "Introduction"
-#define PLUGIN_AUTHOR               "AuthorName"
+//static_assert(false, "Please modify your plugin registration details and delete this line");
+#define PLUGIN_NAME                 "DispenserDestroyBlock"
+#define PLUGIN_INTRODUCTION         "激活发射器利用工具破坏方块"
+#define PLUGIN_AUTHOR               "CNGEGE"
 #define PLUGIN_VERSION_MAJOR        1
 #define PLUGIN_VERSION_MINOR        0
 #define PLUGIN_VERSION_REVISION     0
