@@ -3,7 +3,7 @@
 
 演示:
 
-<center><img src=".github/demo.gif" alt="show" />
+<div align=center><img src=".github/demo.gif" alt="show" /></div>
 
 - 依赖 [LiteLoader.dll](https://github.com/LiteLDev/LiteLoaderBDS)加载器
 - 将插件 `DispenserDestroyBlock.dll` 拖入`plugins`文件夹中开服即可
