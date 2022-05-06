@@ -1,12 +1,9 @@
 ﻿# DispenserDestroyBlock
-### 使发射器能使特点的物品破坏特点的方块
-
-
-
----
+### 使发射器能使某些物品破坏某些方块
 
 演示:
-<img src=".github/demo.gif" alt="show" />
+
+<center><img src=".github/demo.gif" alt="show" />
 
 - 依赖 [LiteLoader.dll](https://github.com/LiteLDev/LiteLoaderBDS)加载器
 - 将插件 `DispenserDestroyBlock.dll` 拖入`plugins`文件夹中开服即可
