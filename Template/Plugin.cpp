@@ -113,7 +113,7 @@ void PluginInit()
 //石头:minecraft:stone
 //原木:minecraft:log,minecraft:log2
 
-/*
+
 // a7 发射的物品所在的格子数
 THook(void, "?ejectItem@DispenserBlock@@IEBAXAEAVBlockSource@@AEBVVec3@@EAEBVItemStack@@AEAVContainer@@H@Z", DispenserBlock* a1,
     BlockSource* a2, Vec3* a3, FaceID a4, ItemStack* a5, Container* a6, unsigned int a7) {
@@ -126,8 +126,10 @@ THook(void, "?ejectItem@DispenserBlock@@IEBAXAEAVBlockSource@@AEBVVec3@@EAEBVIte
 
     auto itemN = a5->getTypeName();
     auto blockN = a2->getBlock(pos).getTypeName();
+
+    //1. 判断是发射器还是投掷器
     //1. 判断发射的物品是不是可用于破坏的工具
-    if (config["destroy"].contains(itemN))
+    if (a1->getTypeName() == "minecraft:dispenser" && config["destroy"].contains(itemN))
     {
         if (config["destroy"][itemN].contains(blockN))
         {
@@ -174,8 +176,9 @@ THook(void, "?ejectItem@DispenserBlock@@IEBAXAEAVBlockSource@@AEBVVec3@@EAEBVIte
     }
     return original(a1, a2, a3, a4, a5, a6, a7);
 }
-*/
 
+
+/*
 THook(void, "?ejectItem@DispenserBlock@@SAXAEAVBlockSource@@AEBVVec3@@EAEBVItemStack@@@Z", BlockSource* a2, Vec3* a3, FaceID a4, ItemStack* a5)
 {
     DispenserBlock* dispenserBlock;
@@ -214,15 +217,6 @@ THook(void, "?ejectItem@DispenserBlock@@SAXAEAVBlockSource@@AEBVVec3@@EAEBVItemS
     {
         return original(a2, a3, a4, a5);
     }
-    /*
-    DispenserBlockActor DBA(dispenserBlockpos);
-
-    //获取容器的定义函数 并取得容器
-    class Container* (DispenserBlockActor:: * rv)();
-    *((void**)&rv) = dlsym("?getContainer@DispenserBlockActor@@UEAAPEAVContainer@@XZ");
-    
-    auto container = (DBA.*rv)();
-    */
 
     auto itemN = a5->getTypeName();
     auto blockN = a2->getBlock(pos).getTypeName();
@@ -274,3 +268,4 @@ THook(void, "?ejectItem@DispenserBlock@@SAXAEAVBlockSource@@AEBVVec3@@EAEBVItemS
     }
     return original(a2, a3, a4, a5);
 }
+*/
