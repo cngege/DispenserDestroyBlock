@@ -17,7 +17,8 @@
 #include <LLAPI.h>
 #include <ServerAPI.h>
 #include <direct.h>
-
+#include <MC/Types.hpp>
+//#include <MC/DispenserBlockActor.hpp>
 Logger DispenserDestroyBlockLogger(PLUGIN_NAME);
 
 json config = R"(
@@ -112,6 +113,7 @@ void PluginInit()
 //石头:minecraft:stone
 //原木:minecraft:log,minecraft:log2
 
+/*
 // a7 发射的物品所在的格子数
 THook(void, "?ejectItem@DispenserBlock@@IEBAXAEAVBlockSource@@AEBVVec3@@EAEBVItemStack@@AEAVContainer@@H@Z", DispenserBlock* a1,
     BlockSource* a2, Vec3* a3, FaceID a4, ItemStack* a5, Container* a6, unsigned int a7) {
@@ -171,4 +173,104 @@ THook(void, "?ejectItem@DispenserBlock@@IEBAXAEAVBlockSource@@AEBVVec3@@EAEBVIte
         }
     }
     return original(a1, a2, a3, a4, a5, a6, a7);
+}
+*/
+
+THook(void, "?ejectItem@DispenserBlock@@SAXAEAVBlockSource@@AEBVVec3@@EAEBVItemStack@@@Z", BlockSource* a2, Vec3* a3, FaceID a4, ItemStack* a5)
+{
+    DispenserBlock* dispenserBlock;
+    BlockPos pos(*a3);
+    BlockPos dispenserBlockpos;
+    //首先根据FaceID获取发射器所在的位置获取发射器对象  东x+  南z+
+    switch (a4)
+    {
+    case FaceID::Unknown:
+        return original(a2, a3, a4, a5);
+    case FaceID::Down:
+        dispenserBlockpos = BlockPos(pos.x, pos.y + 1, pos.z);
+        break;
+    case FaceID::Up:
+        dispenserBlockpos = BlockPos(pos.x, pos.y - 1, pos.z);
+        break;
+    case FaceID::North: //北 2
+        dispenserBlockpos = BlockPos(pos.x, pos.y, pos.z + 1);
+        break;
+    case FaceID::South: //南 3
+        dispenserBlockpos = BlockPos(pos.x, pos.y, pos.z - 1);
+        break;
+    case FaceID::West:  //西 4
+        dispenserBlockpos = BlockPos(pos.x + 1, pos.y, pos.z);
+        break;
+    case FaceID::East:  //东 5
+        dispenserBlockpos = BlockPos(pos.x - 1, pos.y, pos.z);
+        break;
+    default:
+        return original(a2, a3, a4, a5);
+    }
+    dispenserBlock = (DispenserBlock*)&a2->getBlock(dispenserBlockpos).getLegacyBlock();
+
+    //判断是发射器还是投掷器
+    if (dispenserBlock->getTypeName() != "minecraft:dispenser")
+    {
+        return original(a2, a3, a4, a5);
+    }
+    /*
+    DispenserBlockActor DBA(dispenserBlockpos);
+
+    //获取容器的定义函数 并取得容器
+    class Container* (DispenserBlockActor:: * rv)();
+    *((void**)&rv) = dlsym("?getContainer@DispenserBlockActor@@UEAAPEAVContainer@@XZ");
+    
+    auto container = (DBA.*rv)();
+    */
+
+    auto itemN = a5->getTypeName();
+    auto blockN = a2->getBlock(pos).getTypeName();
+    return;
+    //1. 判断发射的物品是不是可用于破坏的工具
+    if (config["destroy"].contains(itemN))
+    {
+        if (config["destroy"][itemN].contains(blockN))
+        {
+            bool isdestroy = false;
+            if (config["destroy"][itemN][blockN]["dropitem"] == "")
+            {
+                isdestroy = Level::destroyBlock(*a2, pos, true);
+            }
+            else
+            {
+                isdestroy = Level::destroyBlock(*a2, pos, false);
+                auto item = ItemStack::create(std::string(config["destroy"][itemN][blockN]["dropitem"]), config["destroy"][itemN][blockN]["count"]);
+                Level::spawnItem(*a3, a2->getDimensionId(), item);
+            }
+            if (isdestroy && config["consume_durable"] == true)
+            {
+                //auto maxduration = a5->getMaxUseDuration();
+                auto damage = a5->getDamageValue();
+                auto maxdamage = a5->getMaxDamage();
+                if (maxdamage == 0)
+                {
+                    return;
+                }
+
+                if (damage >= maxdamage)
+                {
+                    a5->remove(1);
+                }
+                else
+                {
+                    a5->setDamageValue(damage + (short)1);
+                    //DispenserDestroyBlockLogger.info("物品特殊值:{0}", (int)(a5->getDamageValue()));
+                    //DispenserDestroyBlockLogger.info("最大耐久:{0}", a5->getMaxDamage());
+                }
+            }
+            return;
+        }
+
+        if (config["stay_in_the_Dispenser"])
+        {
+            return;
+        }
+    }
+    return original(a2, a3, a4, a5);
 }

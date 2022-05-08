@@ -10,8 +10,8 @@
 #define PLUGIN_INTRODUCTION         "激活发射器利用工具破坏方块"
 #define PLUGIN_AUTHOR               "CNGEGE"
 #define PLUGIN_VERSION_MAJOR        1
-#define PLUGIN_VERSION_MINOR        0
-#define PLUGIN_VERSION_REVISION     0
+#define PLUGIN_VERSION_MINOR        1
+#define PLUGIN_VERSION_REVISION     1
 #define PLUGIN_VERSION_BUILD        0
 #define PLUGIN_VERSION_STATUS       PLUGIN_VERSION_DEV
 
