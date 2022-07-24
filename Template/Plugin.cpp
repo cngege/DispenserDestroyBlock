@@ -113,75 +113,63 @@ void PluginInit()
 //石头:minecraft:stone
 //原木:minecraft:log,minecraft:log2
 
-
-// a7 发射的物品所在的格子数
-THook(void, "?ejectItem@DispenserBlock@@IEBAXAEAVBlockSource@@AEBVVec3@@EAEBVItemStack@@AEAVContainer@@H@Z", DispenserBlock* a1,
-    BlockSource* a2, Vec3* a3, FaceID a4, ItemStack* a5, Container* a6, unsigned int a7) {
-    //auto pos = a3->toBlockPos();              //函数 有问题 位置有偏移
-    BlockPos pos(*a3);
-
-    //DispenserDestroyBlockLogger.info("物品类型:{0}", a5->getTypeName());
-    //DispenserDestroyBlockLogger.info("方块类型:{0}", a2->getBlock(pos).getTypeName());
-    //DispenserDestroyBlockLogger.info("最大耐久:{0}", a5->getMaxDamage());
-
-    auto itemN = a5->getTypeName();
-    auto blockN = a2->getBlock(pos).getTypeName();
-
-    //1. 判断是发射器还是投掷器
-    //1. 判断发射的物品是不是可用于破坏的工具
-    if (a1->getTypeName() == "minecraft:dispenser" && config["destroy"].contains(itemN))
+// a4  发射物品在容器中的位置 0开始
+// ret 是否拦截发射 true不发射
+THook(bool, "?dispense@Item@@UEBA_NAEAVBlockSource@@AEAVContainer@@HAEBVVec3@@E@Z", Item* thi, BlockSource* a2, Container* a3, int a4, Vec3* a5, unsigned char a6)
+{
+    auto itemstack = a3->getSlot(a4);
+    //发射的物品 名称
+    auto itemN = itemstack->getTypeName();
+    //发射器对着的方块 名称
+    auto blockN = a2->getBlock(a5->toBlockPos()).getTypeName();
+    //如果配置文件中对该物品有行为指定
+    if (config["destroy"].contains(itemN))
     {
+        //如果配置文件指定，发射器对着的方块是允许该发射物破坏的方块
         if (config["destroy"][itemN].contains(blockN))
         {
             bool isdestroy = false;
             if (config["destroy"][itemN][blockN]["dropitem"] == "")
             {
-                isdestroy = Level::destroyBlock(*a2, pos, true);
+                isdestroy = a2->getLevel().destroyBlock(*a2, a5->toBlockPos(), true);
             }
             else
             {
-                isdestroy = Level::destroyBlock(*a2, pos, false);
+                isdestroy = a2->getLevel().destroyBlock(*a2, a5->toBlockPos(), false);
                 auto item = ItemStack::create(std::string(config["destroy"][itemN][blockN]["dropitem"]), config["destroy"][itemN][blockN]["count"]);
-                Level::spawnItem(*a3, a2->getDimensionId(), item);
+                Level::spawnItem(*a5, a2->getDimensionId(), item);
             }
+
+            //如果破坏成功，并且要求消耗耐久
             if (isdestroy && config["consume_durable"] == true)
             {
                 //auto maxduration = a5->getMaxUseDuration();
-                auto damage = a5->getDamageValue();
-                auto maxdamage = a5->getMaxDamage();
+                auto damage = itemstack->getDamageValue();
+                auto maxdamage = itemstack->getMaxDamage();
                 if (maxdamage == 0)
                 {
-                    return;
+                    return true;
                 }
 
                 if (damage >= maxdamage)
                 {
-                    a5->remove(1);
+                    itemstack->remove(1);
                 }
                 else
                 {
-                    a5->setDamageValue(damage + (short)1);
+                    itemstack->setDamageValue(damage + (short)1);
                     //DispenserDestroyBlockLogger.info("物品特殊值:{0}", (int)(a5->getDamageValue()));
                     //DispenserDestroyBlockLogger.info("最大耐久:{0}", a5->getMaxDamage());
                 }
             }
 
-            return;
+            return true;
         }
 
         if (config["stay_in_the_Dispenser"])
         {
-            return;
+            return true;
         }
     }
-    return original(a1, a2, a3, a4, a5, a6, a7);
-}
-
-
-THook(bool, "?dispense@Item@@UEBA_NAEAVBlockSource@@AEAVContainer@@HAEBVVec3@@E@Z",Item* thi, BlockSource* a2, Container* a3,int a4, Vec3* a5, unsigned char a6)
-{
-    DispenserDestroyBlockLogger.info("发射物品:{}", thi->getFullItemName());
-    auto ret = original(thi ,a2, a3, a4, a5, a6);
-    DispenserDestroyBlockLogger.info("返回:{}", ret);
-    return ret;
+    return original(thi, a2, a3, a4, a5, a6);
 }

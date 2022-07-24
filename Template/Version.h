@@ -9,11 +9,11 @@
 #define PLUGIN_NAME                 "DispenserDestroyBlock"
 #define PLUGIN_INTRODUCTION         "激活发射器利用工具破坏方块"
 #define PLUGIN_AUTHOR               "CNGEGE"
-#define PLUGIN_VERSION_MAJOR        1
+#define PLUGIN_VERSION_MAJOR        2
 #define PLUGIN_VERSION_MINOR        1
-#define PLUGIN_VERSION_REVISION     2
+#define PLUGIN_VERSION_REVISION     0
 #define PLUGIN_VERSION_BUILD        0
-#define PLUGIN_VERSION_STATUS       PLUGIN_VERSION_DEV
+#define PLUGIN_VERSION_STATUS       PLUGIN_VERSION_BETA
 
 //#define TARGET_BDS_PROTOCOL_VERSION 503
 // used by github actions(TODO)
