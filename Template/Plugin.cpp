@@ -12,14 +12,18 @@
 #include <MC/ItemStackBase.hpp>
 #include <MC/DispenserBlock.hpp>    //发射器
 #include <MC/Container.hpp>         //容器
-#include <MC/Json.hpp>
 #include "Version.h"
 #include <LLAPI.h>
 #include <ServerAPI.h>
 #include <direct.h>
 #include <MC/Types.hpp>
 //#include <MC/DispenserBlockActor.hpp>
+
+#include <Nlohmann/json.hpp>
+
 Logger DispenserDestroyBlockLogger(PLUGIN_NAME);
+
+using json = nlohmann::json;
 
 json config = R"(
   {
@@ -72,9 +76,13 @@ inline void CheckProtocolVersion() {
 #endif // TARGET_BDS_PROTOCOL_VERSION
 }
 
+void AutoUprade(const std::string minebbs_resid);
+
 void PluginInit()
 {
     CheckProtocolVersion();
+    AutoUprade("4066");
+
     if (_access(configpath.c_str(), 0) == -1)	//表示配置文件所在的文件夹不存在
     {
         if (_mkdir(configpath.c_str()) == -1)
