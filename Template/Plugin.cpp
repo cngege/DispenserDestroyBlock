@@ -23,7 +23,7 @@
 
 Logger DispenserDestroyBlockLogger(PLUGIN_NAME);
 
-using json = nlohmann::json;
+using nlohmann::json;
 
 json config = R"(
   {
